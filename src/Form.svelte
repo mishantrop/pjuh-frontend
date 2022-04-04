@@ -1,6 +1,9 @@
 <script>
+	// @ts-nocheck
+
 	import axios from "axios";
 	import { onMount } from "svelte";
+	// import Dropzone from "svelte-file-dropzone";
 	import { useMutation } from "@sveltestack/svelte-query";
 	import Button from "@smui/button";
 	import Textfield from "@smui/textfield";
@@ -33,10 +36,21 @@
 
 		$mutation.mutate(form);
 	}
+
+	// function handleFilesSelect(e) {
+	// 	const { acceptedFiles, fileRejections } = e.detail;
+	// 	console.log(acceptedFiles);
+	// 	console.log(fileRejections);
+
+	// 	// files.accepted = [...files.accepted, ...acceptedFiles];
+	// 	// files.rejected = [...files.rejected, ...fileRejections];
+	// }
 </script>
 
 <main>
 	<form method="POST" on:submit={handleSubmit}>
+		<!-- <Dropzone on:drop={handleFilesSelect} /> -->
+
 		<Textfield
 			disabled={$mutation.isLoading}
 			style="width: 100%;"
