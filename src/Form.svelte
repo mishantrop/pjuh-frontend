@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
 	// @ts-nocheck
 
-	import axios from "axios";
+	import axios, { AxiosResponse } from "axios";
 	import { onMount } from "svelte";
 	// import Dropzone from "svelte-file-dropzone";
 	import { useMutation } from "@sveltestack/svelte-query";
@@ -10,10 +10,13 @@
 
 	import config from "./config";
 	import placeholder from "./placeholder";
+	import type { ParseResult } from "../types";
 
 	const form = {
 		text: placeholder,
 	};
+
+	let npmcomand = 'Hello, world'
 
 	onMount(() => {
 		console.log("Form Mount");
@@ -28,7 +31,12 @@
 					"content-type": "application/json; charset=utf-8",
 				},
 			}
-		);
+		).then((response: AxiosResponse<ParseResult>) => {
+			const info = response.data
+			console.log(info.dependencies.map((p) => p.name).join('; '))
+
+			npmcomand = `npm i -E ${info.dependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')}`
+		});
 	});
 
 	function handleSubmit(event) {
@@ -58,8 +66,15 @@
 			textarea
 			bind:value={form.text}
 			label="package.json content"
+			rows={32}
 		/>
 
 		<Button variant="raised">Submit</Button>
+
+		<h2>Result</h2>
+
+		<div>
+			{npmcomand}
+		</div>
 	</form>
 </main>
