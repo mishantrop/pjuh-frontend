@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  // import { onMount } from "svelte";
   import { QueryClient, QueryClientProvider } from "@sveltestack/svelte-query";
 
   import Form from "./Form.svelte";
 
   const queryClient = new QueryClient();
 
-  onMount(() => {
-    console.log("App Mount");
-  });
+  // onMount(() => {
+  //   console.log("App Mount");
+  // });
 </script>
 
 <QueryClientProvider client={queryClient}>

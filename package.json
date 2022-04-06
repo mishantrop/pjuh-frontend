@@ -14,6 +14,11 @@
   },
   "dependencies": {
     "@smui/button": "6.0.0-beta.15",
+    "@smui/form-field": "6.0.0-beta.15",
+    "@smui/layout-grid": "6.0.0-beta.15",
+    "@smui/radio": "6.0.0-beta.15",
+    "@smui/ripple": "6.0.0-beta.15",
+    "@smui/snackbar": "6.0.0-beta.15",
     "@smui/textfield": "6.0.0-beta.15",
     "@sveltestack/svelte-query": "1.6.0",
     "axios": "0.26.1",

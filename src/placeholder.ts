@@ -1,14 +1,10 @@
 export default `{
   "name": "example",
   "version": "1.2.3",
-  "description": "",
-  "author": "",
-  "private": true,
-  "license": "MIT",
   "dependencies": {
-    "@nestjs/common": "^8.0.0",
-    "@nestjs/core": "~8.0.0",
-    "@nestjs/platform-express": "8.0.0",
+    "@nestjs/common": "^7.0.0",
+    "@nestjs/core": "~7.0.0",
+    "@nestjs/platform-express": "7.0.0",
     "path": "0.12.7",
     "reflect-metadata": "0.1.13",
     "rimraf": "3.0.2",

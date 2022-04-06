@@ -6,6 +6,11 @@ export enum DependencyCategory {
 
 export type VersionType = 'fixed' | 'caret' | 'tilde'
 
+export enum UpdateMode {
+  KEEP = 'keep',
+  FIX = 'fix',
+}
+
 export type Package = {
   name: string
 
