@@ -1,6 +1,6 @@
 # YAPJDUC - FronEnd
 
-BackEnd: [YAPJDUC FrontEnd](https://github.com/mishantrop/yet-another-package-json-dependencies-updates-checker-backend)
+BackEnd: [YAPJDUC BackEnd](https://github.com/mishantrop/yet-another-package-json-dependencies-updates-checker-backend)
 
 Based on [Svelte](https://github.com/sveltejs/svelte) and TypeScript
 
