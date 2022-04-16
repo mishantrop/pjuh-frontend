@@ -1,37 +1,27 @@
-import type { Package, ParseResult, UpdateMode } from "../types"
+import type { ParseResult, UpdateMode } from "../types"
 
-const filterDeps = (dep: Package, mode: UpdateMode) => {
-    return Boolean(dep.after?.versionFixed)
-        && Boolean(dep.after?.versionRaw)
-        && ((mode === 'fix' && dep.before.versionFixed !== dep.after.versionFixed) || (mode !== 'fix' && dep.before.versionRaw !== dep.after.versionRaw))
-}
-
-export const getNpmInstallCommand = (updateInfo: ParseResult, mode: UpdateMode) => {
+export const getNpmInstallCommand = (updateInfo: ParseResult) => {
     if (!updateInfo) {
         return 'Waiting parse result'
     }
 
-    // Keep changed only
-    const dependencies = (updateInfo.dependencies || []).filter((dep) => filterDeps(dep, mode))
-    const devDependencies = (updateInfo.devDependencies || []).filter((dep) => filterDeps(dep, mode))
-    const peerDependencies = (updateInfo.peerDependencies || []).filter((dep) => filterDeps(dep, mode))
+    // const newDepsFixed = updateInfo.dependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')
+    // const newDepsRaw = updateInfo.dependencies.map((p) => `${p.name}@${p.after.versionRaw}`).join(' ')
 
-    const newDepsFixed = dependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')
-    const newDepsRaw = dependencies.map((p) => `${p.name}@${p.after.versionRaw}`).join(' ')
+    // const newDevDepsFixed = updateInfo.devDependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')
+    // const newDevDepsRaw = updateInfo.devDependencies.map((p) => `${p.name}@${p.after.versionRaw}`).join(' ')
 
-    const newDevDepsFixed = devDependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')
-    const newDevDepsRaw = devDependencies.map((p) => `${p.name}@${p.after.versionRaw}`).join(' ')
+    // const newPeerDepsFixed = updateInfo.peerDependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')
+    // const newPeerDepsRaw = updateInfo.peerDependencies.map((p) => `${p.name}@${p.after.versionRaw}`).join(' ')
 
-    const newPeerDepsFixed = peerDependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')
-    const newPeerDepsRaw = peerDependencies.map((p) => `${p.name}@${p.after.versionRaw}`).join(' ')
+    // const commandPartsSemver = [
+    //     'npm i',
+    //     ...mode === 'fix' ? ['-E'] : [],
+    //     ...mode === 'fix' ? newDepsFixed : newDepsRaw,
+    //     ...mode === 'fix' ? newDevDepsFixed : newDevDepsRaw,
+    //     ...mode === 'fix' ? newPeerDepsFixed : newPeerDepsRaw,
+    // ]
 
-    const commandParts = [
-        'npm i',
-        ...mode === 'fix' ? ['-E'] : [],
-        ...mode === 'fix' ? newDepsFixed : newDepsRaw,
-        ...mode === 'fix' ? newDevDepsFixed : newDevDepsRaw,
-        ...mode === 'fix' ? newPeerDepsFixed : newPeerDepsRaw,
-    ]
-
-    return commandParts.join(' ')
+    // return commandParts.join(' ')
+    return 'test'
 }

@@ -7,8 +7,9 @@ export enum DependencyCategory {
 export type VersionType = '' | '^' | '~'
 
 export enum UpdateMode {
-  KEEP = 'keep',
-  FIX = 'fix',
+  SEMVER = 'SEMVER',
+  LATEST = 'LATEST',
+  LATEST_FIXED = 'LATEST_FIXED',
 }
 
 export type Package = {
@@ -24,6 +25,8 @@ export type Package = {
     latest?: string
     latestFixed?: string
     semver?: string
+
+    selected: UpdateMode
   }
 }
 

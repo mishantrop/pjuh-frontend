@@ -1,25 +1,23 @@
 <script lang="ts">
-	// @ts-nocheck
-
-	import axios, { AxiosResponse } from "axios";
-	// import { onMount } from "svelte";
-	import { writable } from 'svelte/store';
-	import { useMutation } from "@sveltestack/svelte-query";
-	import Button from "@smui/button";
-	import FormField from "@smui/form-field";
-	import LinearProgress from '@smui/linear-progress';
-	import LayoutGrid, { Cell } from '@smui/layout-grid';
-	import Textfield from "@smui/textfield";
-	import type { SnackbarComponentDev } from '@smui/snackbar';
-  	import Snackbar, { Label } from '@smui/snackbar';
-	import Radio from "@smui/radio";
+	import axios from "axios"
+	import type { AxiosResponse } from "axios"
+	import { writable } from 'svelte/store'
+	import { useMutation } from "@sveltestack/svelte-query"
+	import Button from "@smui/button"
+	import LinearProgress from '@smui/linear-progress'
+	import LayoutGrid, { Cell } from '@smui/layout-grid'
+	import type { SnackbarComponentDev } from '@smui/snackbar'
+	import DataTable, { Head, Body, Row, Cell as TableCell } from '@smui/data-table'
+	import Textfield from "@smui/textfield"
+  	import Snackbar, { Label } from '@smui/snackbar'
 	import Ripple from '@smui/ripple';
 
-	import Dropzone from "./components/dropzone/Dropzone.svelte";
-	import config from "./config";
-	import placeholder from "./placeholder";
-	import { getNpmInstallCommand } from "./getNpmInstallCommand";
-	import type { ParseResult } from "../types";
+
+	import Dropzone from "./components/dropzone/Dropzone.svelte"
+	import config from "./config"
+	import { getNpmInstallCommand } from "./getNpmInstallCommand"
+	import placeholder from "./placeholder"
+	import { DependencyCategory, UpdateMode, type Package, type ParseResult } from "../types"
 
 	const form = {
 		text: placeholder,
@@ -32,12 +30,36 @@
 	let snackbarSomeUploadError: SnackbarComponentDev;
 	let snackbarAPIError: SnackbarComponentDev;
 
-	// onMount(() => {
-	// 	console.log("Form Mount");
-	// });
-
 	function handleResponse(data: ParseResult) {
+		// TODO remove data mutation
+		Object.values(DependencyCategory).forEach((category) => {
+			data[category] = data[category].filter((pkg) => !!pkg.after.semver && pkg.before.raw !== pkg.after.semver)
+		})
+
+		// Mark update mode (semver by default)
+		Object.values(DependencyCategory).forEach((category) => {
+			data[category] = data[category].map((pkg) => {
+				pkg.after.selected = UpdateMode.SEMVER
+				return pkg
+			})
+		})
+
+
 		updateInfo.set(data)
+	}
+
+	function setPackageUpdateMode(pkg: Package, updateMode: UpdateMode) {
+		Object.values(DependencyCategory).forEach((category) => {
+			for (let i = 0; i < $updateInfo[category].length; i++) {
+				const currentPkg = $updateInfo[category][i]
+
+				if (currentPkg.name === pkg.name) {
+					console.log(currentPkg.name, '===', pkg.name);
+
+					$updateInfo[category][i].after.selected = updateMode
+				}
+			}
+		})
 	}
 
 	const mutation = useMutation(async (packageJsonText) => {
@@ -60,10 +82,11 @@
 	function handleSubmit(event) {
 		event.preventDefault();
 
+		// @ts-ignore
 		$mutation.mutate(form);
 	}
 
-	function handleFilesSelect(event: { detail: { acceptedFiles: unknown[]; fileRejections: unknown[]; } }) {
+	function handleFilesSelect(event: { detail: { acceptedFiles: Array<string | Blob>; fileRejections: Array<string | Blob>; } }) {
 		const { acceptedFiles, fileRejections } = event.detail;
 
 		if (fileRejections.length === 1) {
@@ -97,9 +120,6 @@
 </script>
 
 <main>
-	{#if $mutation.isLoading}
-		<LinearProgress indeterminate />
-	{/if}
 
 	<LayoutGrid>
 		<Cell span={5}>
@@ -122,8 +142,7 @@
 					disabled={$mutation.isLoading}
 					helperLine$style="width: 100%;"
 					label="Paste here package.json content"
-					rows={32}
-					style="width: 100%;"
+					style="height: 64px; width: 100%;"
 					textarea
 					bind:value={form.text}
 				/>
@@ -134,10 +153,118 @@
 		</Cell>
 	</LayoutGrid>
 
-	<h2>Options</h2>
+	{#if $mutation.isLoading}
+		<LinearProgress indeterminate />
+	{:else}
+		<div style="height: 4px;"></div>
+	{/if}
 
 	{#if $updateInfo}
 		<h2>Result</h2>
+
+		<DataTable style="max-width: 100%;">
+			<Head>
+				<Row>
+				<TableCell>Name</TableCell>
+				<TableCell>Now</TableCell>
+				<TableCell>Semver</TableCell>
+				<TableCell>Latest</TableCell>
+				<TableCell>Latest Fixed</TableCell>
+				</Row>
+			</Head>
+			<Body>
+				{#each $updateInfo.dependencies as packageInfo (packageInfo.name)}
+					<Row>
+						<TableCell>{packageInfo.name}</TableCell>
+						<TableCell>{packageInfo.before.raw}</TableCell>
+						<TableCell>
+							<button
+								class="{packageInfo.after.selected === 'SEMVER' ? 'cell-checked' : ''}"
+								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.SEMVER)}"
+							>
+								{packageInfo.after.semver}
+							</button>
+						</TableCell>
+						<TableCell>
+							<button
+								class="{packageInfo.after.selected === 'LATEST' ? 'cell-checked' : ''}"
+								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST)}"
+							>
+								{packageInfo.after.latest}
+							</button>
+						</TableCell>
+						<TableCell>
+							<button
+								class="{packageInfo.after.selected === 'LATEST_FIXED' ? 'cell-checked' : ''}"
+								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST_FIXED)}"
+							>
+								{packageInfo.after.latestFixed}
+							</button>
+						</TableCell>
+					</Row>
+				{/each}
+				{#each $updateInfo.devDependencies as packageInfo (packageInfo.name)}
+					<Row>
+						<TableCell>{packageInfo.name}</TableCell>
+						<TableCell>{packageInfo.before.raw}</TableCell>
+						<TableCell>
+							<button
+								class="{packageInfo.after.selected === 'SEMVER' ? 'cell-checked' : ''}"
+								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.SEMVER)}"
+							>
+								{packageInfo.after.semver}
+							</button>
+						</TableCell>
+						<TableCell>
+							<button
+								class="{packageInfo.after.selected === 'LATEST' ? 'cell-checked' : ''}"
+								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST)}"
+							>
+								{packageInfo.after.latest}
+							</button>
+						</TableCell>
+						<TableCell>
+							<button
+								class="{packageInfo.after.selected === 'LATEST_FIXED' ? 'cell-checked' : ''}"
+								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST_FIXED)}"
+							>
+								{packageInfo.after.latestFixed}
+							</button>
+						</TableCell>
+					</Row>
+				{/each}
+				{#each $updateInfo.peerDependencies as packageInfo (packageInfo.name)}
+					<Row>
+						<TableCell>{packageInfo.name}</TableCell>
+						<TableCell>{packageInfo.before.raw}</TableCell>
+						<TableCell>
+							<button
+								class="{packageInfo.after.selected === 'SEMVER' ? 'cell-checked' : ''}"
+								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.SEMVER)}"
+							>
+								{packageInfo.after.semver}
+							</button>
+						</TableCell>
+						<TableCell>
+							<button
+								class="{packageInfo.after.selected === 'LATEST' ? 'cell-checked' : ''}"
+								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST)}"
+							>
+								{packageInfo.after.latest}
+							</button>
+						</TableCell>
+						<TableCell>
+							<button
+								class="{packageInfo.after.selected === 'LATEST_FIXED' ? 'cell-checked' : ''}"
+								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST_FIXED)}"
+							>
+								{packageInfo.after.latestFixed}
+							</button>
+						</TableCell>
+					</Row>
+				{/each}
+			</Body>
+		</DataTable>
 
 		<p
 			use:Ripple={{ surface: true, color: 'primary' }}
@@ -160,3 +287,9 @@
 		<Label>Some API Error</Label>
 	</Snackbar>
 </main>
+
+<style>
+	.cell-checked {
+		color: rgb(6, 107, 40);
+	}
+</style>
