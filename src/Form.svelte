@@ -158,6 +158,7 @@
 
 <main>
 
+	<h2>1. Upload your package.json</h2>
 	<LayoutGrid>
 		<Cell span={5}>
 			<Dropzone
@@ -197,7 +198,7 @@
 	{/if}
 
 	{#if $updateInfo}
-		<h2>Select packages versions</h2>
+		<h2>2. Select packages versions</h2>
 
 		<DataTable stickyHeader style="max-width: 100%;">
 			<Head>
@@ -296,7 +297,7 @@
 			</Body>
 		</DataTable>
 
-		<h2>Run this command (or dont)</h2>
+		<h2>3. Run this command (or dont)</h2>
 
 		<p
 			use:Ripple={{ surface: true, color: 'primary' }}
