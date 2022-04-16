@@ -5,15 +5,18 @@ export enum DependencyCategory {
 }
 
 export type VersionType = '' | '^' | '~'
+export type DependencyType = 'prod' | 'dev' | 'peer' | 'optional'
 
-export enum UpdateMode {
-  SEMVER = 'SEMVER',
-  LATEST = 'LATEST',
-  LATEST_FIXED = 'LATEST_FIXED',
-}
+export type UpdateMode = 'SEMVER' | 'LATEST' | 'LATEST_FIXED'
 
 export type Package = {
   name: string
+
+  meta: {
+    updateMode: UpdateMode
+    type: DependencyType
+    isUpdating: boolean
+  }
 
   before: {
     fixed: string
@@ -25,13 +28,10 @@ export type Package = {
     latest?: string
     latestFixed?: string
     semver?: string
-
-    selected: UpdateMode
+    // semverFixed?: string
   }
 }
 
 export type ParseResult = {
-  dependencies: Package[]
-  devDependencies: Package[]
-  peerDependencies: Package[]
+  allDependencies: Package[]
 }

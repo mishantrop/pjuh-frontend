@@ -2,6 +2,7 @@ export default `{
   "name": "example",
   "version": "1.2.3",
   "dependencies": {
+    "react": "~17.0.0",
     "@nestjs/common": "^7.0.0",
     "@nestjs/core": "~7.0.0",
     "@nestjs/platform-express": "7.0.0",

@@ -1,27 +1,32 @@
-import type { ParseResult, UpdateMode } from "../types"
+import type { ParseResult } from "../types"
 
 export const getNpmInstallCommand = (updateInfo: ParseResult) => {
     if (!updateInfo) {
         return 'Waiting parse result'
     }
 
-    // const newDepsFixed = updateInfo.dependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')
-    // const newDepsRaw = updateInfo.dependencies.map((p) => `${p.name}@${p.after.versionRaw}`).join(' ')
+    const npmInstallCommandSemver = ['npm i']
+    const npmInstallCommandLatest = ['npm i']
+    const npmInstallCommandLatestFixed = ['npm i -E']
 
-    // const newDevDepsFixed = updateInfo.devDependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')
-    // const newDevDepsRaw = updateInfo.devDependencies.map((p) => `${p.name}@${p.after.versionRaw}`).join(' ')
+    const allDeps = [...updateInfo.allDependencies.filter((d) => d.meta.isUpdating)]
 
-    // const newPeerDepsFixed = updateInfo.peerDependencies.map((p) => `${p.name}@${p.after.versionFixed}`).join(' ')
-    // const newPeerDepsRaw = updateInfo.peerDependencies.map((p) => `${p.name}@${p.after.versionRaw}`).join(' ')
+    allDeps.forEach((pkg) => {
+        if (pkg.meta.updateMode === 'SEMVER') {
+            const full = `${pkg.name}@${pkg.after.semver}`
+            npmInstallCommandSemver.push(full)
+        } else if (pkg.meta.updateMode === 'LATEST') {
+            const full = `${pkg.name}@${pkg.after.latest}`
+            npmInstallCommandLatest.push(full)
+        } else if (pkg.meta.updateMode === 'LATEST_FIXED') {
+            const full = `${pkg.name}@${pkg.after.latestFixed}`
+            npmInstallCommandLatestFixed.push(full)
+        }
+    })
 
-    // const commandPartsSemver = [
-    //     'npm i',
-    //     ...mode === 'fix' ? ['-E'] : [],
-    //     ...mode === 'fix' ? newDepsFixed : newDepsRaw,
-    //     ...mode === 'fix' ? newDevDepsFixed : newDevDepsRaw,
-    //     ...mode === 'fix' ? newPeerDepsFixed : newPeerDepsRaw,
-    // ]
-
-    // return commandParts.join(' ')
-    return 'test'
+    return [
+        ...npmInstallCommandSemver.length > 1 ? [npmInstallCommandSemver.join(' ')] : [],
+        ...npmInstallCommandLatest.length > 1 ? [npmInstallCommandLatest.join(' ')] : [],
+        ...npmInstallCommandLatestFixed.length > 1 ? [npmInstallCommandLatestFixed.join(' ')] : [],
+    ].join(' && ')
 }

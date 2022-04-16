@@ -3,21 +3,22 @@
 	import type { AxiosResponse } from "axios"
 	import { writable } from 'svelte/store'
 	import { useMutation } from "@sveltestack/svelte-query"
-	import Button from "@smui/button"
+	import Button, { Icon } from "@smui/button"
+	import Checkbox from '@smui/checkbox'
+	import DataTable, { Head, Body, Row, Cell as TableCell } from '@smui/data-table'
+	import IconButton from '@smui/icon-button'
 	import LinearProgress from '@smui/linear-progress'
 	import LayoutGrid, { Cell } from '@smui/layout-grid'
+	import Snackbar, { Label } from '@smui/snackbar'
 	import type { SnackbarComponentDev } from '@smui/snackbar'
-	import DataTable, { Head, Body, Row, Cell as TableCell } from '@smui/data-table'
 	import Textfield from "@smui/textfield"
-  	import Snackbar, { Label } from '@smui/snackbar'
-	import Ripple from '@smui/ripple';
-
+	import Ripple from '@smui/ripple'
 
 	import Dropzone from "./components/dropzone/Dropzone.svelte"
 	import config from "./config"
 	import { getNpmInstallCommand } from "./getNpmInstallCommand"
 	import placeholder from "./placeholder"
-	import { DependencyCategory, UpdateMode, type Package, type ParseResult } from "../types"
+	import type { UpdateMode, Package, ParseResult } from "../types"
 
 	const form = {
 		text: placeholder,
@@ -25,44 +26,45 @@
 
 	let updateInfo = writable<ParseResult>(undefined)
 	$: npmInstallCommand = getNpmInstallCommand($updateInfo)
+	$: isAllChecked = ($updateInfo?.allDependencies || []).every((dep) => dep.meta.isUpdating)
+	$: isAllUnchecked = ($updateInfo?.allDependencies || []).every((dep) => !dep.meta.isUpdating)
 
 	let snackbarNpmCommandCopied: SnackbarComponentDev;
 	let snackbarSomeUploadError: SnackbarComponentDev;
 	let snackbarAPIError: SnackbarComponentDev;
+	let snackbarFrontendError: SnackbarComponentDev;
 
 	function handleResponse(data: ParseResult) {
 		// TODO remove data mutation
-		Object.values(DependencyCategory).forEach((category) => {
-			data[category] = data[category].filter((pkg) => !!pkg.after.semver && pkg.before.raw !== pkg.after.semver)
-		})
+		data.allDependencies = data.allDependencies.filter((pkg) => !!pkg.after.semver && pkg.before.raw !== pkg.after.semver)
 
 		// Mark update mode (semver by default)
-		Object.values(DependencyCategory).forEach((category) => {
-			data[category] = data[category].map((pkg) => {
-				pkg.after.selected = UpdateMode.SEMVER
-				return pkg
-			})
+		data.allDependencies = data.allDependencies.map((pkg) => {
+			pkg.meta.updateMode = 'SEMVER'
+			return pkg
 		})
-
 
 		updateInfo.set(data)
 	}
 
 	function setPackageUpdateMode(pkg: Package, updateMode: UpdateMode) {
-		Object.values(DependencyCategory).forEach((category) => {
-			for (let i = 0; i < $updateInfo[category].length; i++) {
-				const currentPkg = $updateInfo[category][i]
-
-				if (currentPkg.name === pkg.name) {
-					console.log(currentPkg.name, '===', pkg.name);
-
-					$updateInfo[category][i].after.selected = updateMode
-				}
+		for (let i = 0; i < $updateInfo.allDependencies.length; i++) {
+			const currentPkg = $updateInfo.allDependencies[i]
+			if (currentPkg.name === pkg.name) {
+				$updateInfo.allDependencies[i].meta.updateMode = updateMode
 			}
-		})
+		}
+	}
+
+	function setPackagesUpdateMode(updateMode: UpdateMode) {
+		for (let i = 0; i < $updateInfo.allDependencies.length; i++) {
+			$updateInfo.allDependencies[i].meta.updateMode = updateMode
+		}
 	}
 
 	const mutation = useMutation(async (packageJsonText) => {
+		updateInfo.set(undefined)
+
 		try {
 			const response=await axios.post(
 				`${config.api.host}${config.api.endpoints.TEXT_SUBMIT}`,
@@ -73,7 +75,11 @@
 					},
 				}
 			);
-			handleResponse(response.data);
+			try {
+				handleResponse(response.data);
+			} catch (exception) {
+				snackbarFrontendError.open()
+			}
 		} catch {
 			snackbarAPIError.open();
 		}
@@ -117,6 +123,35 @@
 		navigator.clipboard.writeText(npmInstallCommand);
 		snackbarNpmCommandCopied.open()
 	}
+
+	function handleCheckPackage(packageInfo: Package) {
+		const newUpdateInfo = $updateInfo
+		newUpdateInfo.allDependencies = newUpdateInfo.allDependencies.map((d) => ({
+			...d,
+			meta: {
+				...d.meta,
+				isUpdating: packageInfo.name === d.name ? !d.meta.isUpdating : d.meta.isUpdating,
+			}
+		}))
+
+		updateInfo.set(newUpdateInfo)
+	}
+
+	function handleTotalCheckboxClick(event) {
+		event.preventDefault()
+
+		const newUpdateInfo = $updateInfo
+
+		newUpdateInfo.allDependencies = newUpdateInfo.allDependencies.map((d) => ({
+			...d,
+			meta: {
+				...d.meta,
+				isUpdating: !isAllChecked,
+			}
+		}))
+
+		updateInfo.set(newUpdateInfo)
+	}
 </script>
 
 <main>
@@ -142,7 +177,7 @@
 					disabled={$mutation.isLoading}
 					helperLine$style="width: 100%;"
 					label="Paste here package.json content"
-					style="height: 64px; width: 100%;"
+					style="min-height: 128px; width: 100%;"
 					textarea
 					bind:value={form.text}
 				/>
@@ -160,117 +195,117 @@
 	{/if}
 
 	{#if $updateInfo}
-		<h2>Result</h2>
+		<h2>Choose packages versions</h2>
 
-		<DataTable style="max-width: 100%;">
+		<DataTable stickyHeader style="max-width: 100%;">
 			<Head>
 				<Row>
-				<TableCell>Name</TableCell>
-				<TableCell>Now</TableCell>
-				<TableCell>Semver</TableCell>
-				<TableCell>Latest</TableCell>
-				<TableCell>Latest Fixed</TableCell>
+					<TableCell>
+						<Checkbox
+							checked={isAllChecked}
+							indeterminate={isAllUnchecked ? false : !isAllChecked}
+							on:change={handleTotalCheckboxClick}
+						/>
+					</TableCell>
+					<TableCell>Name</TableCell>
+					<TableCell>Now</TableCell>
+					<TableCell>
+						<Button on:click="{() => setPackagesUpdateMode('SEMVER')}">
+							<Label>Semver</Label>
+						</Button>
+					</TableCell>
+					<TableCell>
+						<Button on:click="{() => setPackagesUpdateMode('LATEST')}">
+							<Label>Latest</Label>
+						</Button>
+					</TableCell>
+					<TableCell>
+						<Button on:click="{() => setPackagesUpdateMode('LATEST_FIXED')}">
+							<Label>Latest Fixed</Label>
+						</Button>
+					</TableCell>
 				</Row>
 			</Head>
 			<Body>
-				{#each $updateInfo.dependencies as packageInfo (packageInfo.name)}
+				{#each $updateInfo.allDependencies as packageInfo (packageInfo.name)}
 					<Row>
-						<TableCell>{packageInfo.name}</TableCell>
+						<TableCell>
+							<Checkbox
+								checked={packageInfo.meta.isUpdating}
+								on:change={() => { handleCheckPackage(packageInfo) }}
+							/>
+						</TableCell>
+						<TableCell>
+							<a href={`https://www.npmjs.com/package/${packageInfo.name}`} target="_blank" rel="nofollow noopener">
+								{packageInfo.name}
+							</a>
+						</TableCell>
 						<TableCell>{packageInfo.before.raw}</TableCell>
 						<TableCell>
-							<button
-								class="{packageInfo.after.selected === 'SEMVER' ? 'cell-checked' : ''}"
-								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.SEMVER)}"
-							>
-								{packageInfo.after.semver}
-							</button>
+							{#if packageInfo.meta.updateMode === 'SEMVER'}
+								<div class="cellfixed">
+									<Button>
+										<Icon class="material-icons">check</Icon>
+										<Label>{packageInfo.after.semver}</Label>
+									</Button>
+								</div>
+							{:else}
+								<div class="cellfixed">
+									<Button class="cellfixed" color="secondary" on:click="{() => setPackageUpdateMode(packageInfo, 'SEMVER')}">
+										<Label>{packageInfo.after.semver}</Label>
+									</Button>
+								</div>
+							{/if}
 						</TableCell>
 						<TableCell>
-							<button
-								class="{packageInfo.after.selected === 'LATEST' ? 'cell-checked' : ''}"
-								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST)}"
-							>
-								{packageInfo.after.latest}
-							</button>
+							{#if packageInfo.meta.updateMode === 'LATEST'}
+								<div class="cellfixed">
+									<Button>
+										<Icon class="material-icons">check</Icon>
+										<Label>{packageInfo.after.latest}</Label>
+									</Button>
+								</div>
+							{:else}
+								<div class="cellfixed">
+									<Button color="secondary" on:click="{() => setPackageUpdateMode(packageInfo, 'LATEST')}">
+										<Label>{packageInfo.after.latest}</Label>
+									</Button>
+								</div>
+							{/if}
 						</TableCell>
 						<TableCell>
-							<button
-								class="{packageInfo.after.selected === 'LATEST_FIXED' ? 'cell-checked' : ''}"
-								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST_FIXED)}"
-							>
-								{packageInfo.after.latestFixed}
-							</button>
-						</TableCell>
-					</Row>
-				{/each}
-				{#each $updateInfo.devDependencies as packageInfo (packageInfo.name)}
-					<Row>
-						<TableCell>{packageInfo.name}</TableCell>
-						<TableCell>{packageInfo.before.raw}</TableCell>
-						<TableCell>
-							<button
-								class="{packageInfo.after.selected === 'SEMVER' ? 'cell-checked' : ''}"
-								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.SEMVER)}"
-							>
-								{packageInfo.after.semver}
-							</button>
-						</TableCell>
-						<TableCell>
-							<button
-								class="{packageInfo.after.selected === 'LATEST' ? 'cell-checked' : ''}"
-								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST)}"
-							>
-								{packageInfo.after.latest}
-							</button>
-						</TableCell>
-						<TableCell>
-							<button
-								class="{packageInfo.after.selected === 'LATEST_FIXED' ? 'cell-checked' : ''}"
-								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST_FIXED)}"
-							>
-								{packageInfo.after.latestFixed}
-							</button>
-						</TableCell>
-					</Row>
-				{/each}
-				{#each $updateInfo.peerDependencies as packageInfo (packageInfo.name)}
-					<Row>
-						<TableCell>{packageInfo.name}</TableCell>
-						<TableCell>{packageInfo.before.raw}</TableCell>
-						<TableCell>
-							<button
-								class="{packageInfo.after.selected === 'SEMVER' ? 'cell-checked' : ''}"
-								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.SEMVER)}"
-							>
-								{packageInfo.after.semver}
-							</button>
-						</TableCell>
-						<TableCell>
-							<button
-								class="{packageInfo.after.selected === 'LATEST' ? 'cell-checked' : ''}"
-								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST)}"
-							>
-								{packageInfo.after.latest}
-							</button>
-						</TableCell>
-						<TableCell>
-							<button
-								class="{packageInfo.after.selected === 'LATEST_FIXED' ? 'cell-checked' : ''}"
-								on:click="{() => setPackageUpdateMode(packageInfo, UpdateMode.LATEST_FIXED)}"
-							>
-								{packageInfo.after.latestFixed}
-							</button>
+							{#if packageInfo.meta.updateMode === 'LATEST_FIXED'}
+								<div class="cellfixed">
+									<Button>
+										<Icon class="material-icons">check</Icon>
+										<Label>{packageInfo.after.latestFixed}</Label>
+									</Button>
+								</div>
+							{:else}
+								<div class="cellfixed">
+									<Button color="secondary" on:click="{() => setPackageUpdateMode(packageInfo, 'LATEST_FIXED')}">
+										<Label>{packageInfo.after.latestFixed}</Label>
+									</Button>
+								</div>
+							{/if}
 						</TableCell>
 					</Row>
 				{/each}
 			</Body>
 		</DataTable>
 
+		<h2>Run this command</h2>
+
 		<p
 			use:Ripple={{ surface: true, color: 'primary' }}
 			tabindex="0"
 			on:click={handleNpmCommandClick}
 		>
+			<IconButton
+				class="material-icons" on:click={handleNpmCommandClick}
+			>
+				content_copy
+			</IconButton>
 			{npmInstallCommand}
 		</p>
 	{/if}
@@ -286,10 +321,14 @@
 	<Snackbar bind:this={snackbarAPIError}>
 		<Label>Some API Error</Label>
 	</Snackbar>
+
+	<Snackbar bind:this={snackbarFrontendError}>
+		<Label>Some FrontEnd Error</Label>
+	</Snackbar>
 </main>
 
 <style>
-	.cell-checked {
-		color: rgb(6, 107, 40);
+	.cellfixed {
+		min-width: 200px;
 	}
 </style>
