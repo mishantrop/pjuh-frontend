@@ -1,12 +1,16 @@
-# FronEnd for YAPJDUC
+# YAPJDUC - FronEnd
 
-# How to use it
+BackEnd: [YAPJDUC FrontEnd](https://github.com/mishantrop/yet-another-package-json-dependencies-updates-checker-backend)
 
-![Upload package.json or paste its content to text field](url "docs/1.jpg")
-![Select dependencies to update and update strategy](url "docs/2.jpg")
-![Copy npm install command to update dependencies](url "docs/3.jpg")
+Based on [Svelte](https://github.com/sveltejs/svelte) and TypeScript
 
-# Roadmap
+## How to use it
+
+![Upload package.json or paste its content to text field](url "https://raw.githubusercontent.com/mishantrop/yet-another-package-json-dependencies-updates-checker-frontend/main/docs/1.jpg")
+![Select dependencies to update and update strategy](url "https://raw.githubusercontent.com/mishantrop/yet-another-package-json-dependencies-updates-checker-frontend/main/docs/2.jpg")
+![Copy npm install command to update dependencies](url "https://raw.githubusercontent.com/mishantrop/yet-another-package-json-dependencies-updates-checker-frontend/main/docs/3.jpg")
+
+## Roadmap
 * Different values in config for dev and prod
 * Design
 * i18n
