@@ -15,10 +15,12 @@
 	import Ripple from '@smui/ripple'
 
 	import Dropzone from "./components/dropzone/Dropzone.svelte"
-	import config from "./config"
+	import { getConfig } from "./config"
 	import { getNpmInstallCommand } from "./getNpmInstallCommand"
 	import placeholder from "./placeholder"
 	import type { UpdateMode, Package, ParseResult } from "../types"
+
+	const config = getConfig({ isDev: import.meta.env.DEV })
 
 	const form = {
 		text: placeholder,
@@ -195,12 +197,12 @@
 	{/if}
 
 	{#if $updateInfo}
-		<h2>Choose packages versions</h2>
+		<h2>Select packages versions</h2>
 
 		<DataTable stickyHeader style="max-width: 100%;">
 			<Head>
 				<Row>
-					<TableCell>
+					<TableCell checkbox={false}>
 						<Checkbox
 							checked={isAllChecked}
 							indeterminate={isAllUnchecked ? false : !isAllChecked}
@@ -228,8 +230,8 @@
 			</Head>
 			<Body>
 				{#each $updateInfo.allDependencies as packageInfo (packageInfo.name)}
-					<Row>
-						<TableCell>
+					<Row checkbox={false}>
+						<TableCell checkbox={false}>
 							<Checkbox
 								checked={packageInfo.meta.isUpdating}
 								on:change={() => { handleCheckPackage(packageInfo) }}
@@ -294,7 +296,7 @@
 			</Body>
 		</DataTable>
 
-		<h2>Run this command</h2>
+		<h2>Run this command (or dont)</h2>
 
 		<p
 			use:Ripple={{ surface: true, color: 'primary' }}
@@ -329,6 +331,6 @@
 
 <style>
 	.cellfixed {
-		min-width: 200px;
+		min-width: 128px;
 	}
 </style>

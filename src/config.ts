@@ -1,9 +1,9 @@
-export default {
+export const getConfig = ({ isDev }) => ({
     api: {
-        host: 'http://localhost:3000',
+        host: isDev ? 'http://localhost:3000' : 'https://api.updatepackagejson.ru',
         endpoints: {
             TEXT_SUBMIT: '/analyze/updates/text',
             FILE_SUBMIT: '/analyze/updates/file',
         },
     },
-}
+})
