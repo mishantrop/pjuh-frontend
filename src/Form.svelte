@@ -7,6 +7,7 @@
 	import { useMutation } from "@sveltestack/svelte-query";
 	import Button from "@smui/button";
 	import FormField from "@smui/form-field";
+	import LinearProgress from '@smui/linear-progress';
 	import LayoutGrid, { Cell } from '@smui/layout-grid';
 	import Textfield from "@smui/textfield";
 	import type { SnackbarComponentDev } from '@smui/snackbar';
@@ -19,15 +20,13 @@
 	import placeholder from "./placeholder";
 	import { getNpmInstallCommand } from "./getNpmInstallCommand";
 	import type { ParseResult } from "../types";
-	import { UpdateMode } from "../types";
 
 	const form = {
 		text: placeholder,
 	};
 
 	let updateInfo = writable<ParseResult>(undefined)
-	let updateMode: UpdateMode = UpdateMode.FIX
-	$: npmInstallCommand = getNpmInstallCommand($updateInfo, updateMode)
+	$: npmInstallCommand = getNpmInstallCommand($updateInfo)
 
 	let snackbarNpmCommandCopied: SnackbarComponentDev;
 	let snackbarSomeUploadError: SnackbarComponentDev;
@@ -37,20 +36,25 @@
 	// 	console.log("Form Mount");
 	// });
 
-	const mutation = useMutation((packageJsonText) => {
-		return axios.post(
-			`${config.api.host}${config.api.endpoints.TEXT_SUBMIT}`,
-			packageJsonText,
-			{
-				headers: {
-					"content-type": "application/json; charset=utf-8",
-				},
-			}
-		).then((response: AxiosResponse<ParseResult>) => {
-			handleResponse(response.data)
-		}).catch(() => {
-			snackbarAPIError.open()
-		});
+	function handleResponse(data: ParseResult) {
+		updateInfo.set(data)
+	}
+
+	const mutation = useMutation(async (packageJsonText) => {
+		try {
+			const response=await axios.post(
+				`${config.api.host}${config.api.endpoints.TEXT_SUBMIT}`,
+				packageJsonText,
+				{
+					headers: {
+						"content-type": "application/json; charset=utf-8",
+					},
+				}
+			);
+			handleResponse(response.data);
+		} catch {
+			snackbarAPIError.open();
+		}
 	});
 
 	function handleSubmit(event) {
@@ -59,12 +63,8 @@
 		$mutation.mutate(form);
 	}
 
-	function handleResponse(data: ParseResult) {
-		updateInfo.set(data)
-	}
-
 	function handleFilesSelect(event: { detail: { acceptedFiles: unknown[]; fileRejections: unknown[]; } }) {
-		const { acceptedFiles, fileRejections } = e.detail;
+		const { acceptedFiles, fileRejections } = event.detail;
 
 		if (fileRejections.length === 1) {
 			snackbarSomeUploadError.open()
@@ -97,6 +97,9 @@
 </script>
 
 <main>
+	{#if $mutation.isLoading}
+		<LinearProgress indeterminate />
+	{/if}
 
 	<LayoutGrid>
 		<Cell span={5}>
@@ -132,15 +135,6 @@
 	</LayoutGrid>
 
 	<h2>Options</h2>
-
-	<FormField>
-		<span slot="label">Keep version type</span>
-		<Radio bind:group={updateMode} value="keep" touch />
-	</FormField>
-	<FormField>
-		<span slot="label">Fix versions</span>
-		<Radio bind:group={updateMode} value="fix" touch />
-	</FormField>
 
 	{#if $updateInfo}
 		<h2>Result</h2>

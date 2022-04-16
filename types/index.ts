@@ -4,7 +4,7 @@ export enum DependencyCategory {
   peerDependencies = 'peerDependencies',
 }
 
-export type VersionType = 'fixed' | 'caret' | 'tilde'
+export type VersionType = '' | '^' | '~'
 
 export enum UpdateMode {
   KEEP = 'keep',
@@ -15,14 +15,15 @@ export type Package = {
   name: string
 
   before: {
-    versionFixed: string
-    versionRaw: string
+    fixed: string
+    raw: string
     versionType: VersionType
   }
 
   after: {
-    versionRaw?: string
-    versionFixed?: string
+    latest?: string
+    latestFixed?: string
+    semver?: string
   }
 }
 
