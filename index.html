@@ -1,20 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>package.json updater</title>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>package.json updater</title>
 
-    <link rel="stylesheet" href="/smui.css" media="(prefers-color-scheme: light)" />
-    <link
-      rel="stylesheet"
-      href="/smui-dark.css"
-      media="screen and (prefers-color-scheme: dark)"
-    />
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+        <link rel="stylesheet" href="/smui.css" media="(prefers-color-scheme: light)" />
+        <link rel="stylesheet" href="/smui-dark.css" media="screen and (prefers-color-scheme: dark)" />
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono" />
+    </head>
+    <body>
+        <div id="app"></div>
+
+        <script type="module" src="/src/main.ts"></script>
+
+        <!-- Yandex.Metrika counter -->
+        <script type="text/javascript" >
+            (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+            ym(88403095, "init", {
+                clickmap:true,
+                trackLinks:true,
+                accurateTrackBounce:true
+            });
+        </script>
+        <noscript><div><img src="https://mc.yandex.ru/watch/88403095" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+        <!-- /Yandex.Metrika counter -->
+    </body>
 </html>

@@ -2,6 +2,7 @@
 	import axios from "axios"
 	import type { AxiosResponse } from "axios"
 	import { writable } from 'svelte/store'
+	import { _ } from 'svelte-i18n'
 	import { useMutation } from "@sveltestack/svelte-query"
 	import Button, { Icon } from "@smui/button"
 	import Checkbox from '@smui/checkbox'
@@ -157,8 +158,7 @@
 </script>
 
 <main>
-
-	<h2>1. Upload your package.json</h2>
+	<h2>{$_('step1.header')}</h2>
 	<LayoutGrid>
 		<Cell span={5}>
 			<Dropzone
@@ -179,14 +179,16 @@
 				<Textfield
 					disabled={$mutation.isLoading}
 					helperLine$style="width: 100%;"
-					label="Paste here package.json content"
+					label={$_('step1.textfield.label')}
 					style="min-height: 128px; width: 100%;"
 					textarea
 					bind:value={form.text}
 				/>
 				<br>
 				<br>
-				<Button variant="raised">Submit</Button>
+				<Button variant="raised">
+					{$_('step1.submit')}
+				</Button>
 			</form>
 		</Cell>
 	</LayoutGrid>

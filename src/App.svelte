@@ -1,41 +1,29 @@
 <script lang="ts">
-  // import { onMount } from "svelte";
-  import { QueryClient, QueryClientProvider } from "@sveltestack/svelte-query";
+    import { onMount } from "svelte"
+	import { _ } from 'svelte-i18n'
+    import { QueryClient, QueryClientProvider } from "@sveltestack/svelte-query"
 
-  import Form from "./Form.svelte";
+    import Form from "./Form.svelte"
+    import Footer from "./Footer.svelte"
+    import { initLocales } from "./i18n"
 
-  const queryClient = new QueryClient();
 
-  // onMount(() => {
-  //   console.log("App Mount");
-  // });
+    onMount(() => {
+        initLocales()
+    });
+
+    const queryClient = new QueryClient()
 </script>
 
-<svelte:head>
-  <!-- Material Icons -->
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/icon?family=Material+Icons"
-  />
-  <!-- Roboto -->
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700"
-  />
-  <!-- Roboto Mono -->
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css?family=Roboto+Mono"
-  />
-</svelte:head>
-
 <QueryClientProvider client={queryClient}>
-  <main>
+    <main>
 
-    <h1>package.json updater</h1>
+        <h1>{$_('header')}</h1>
 
-    <Form />
-  </main>
+        <Form />
+
+        <Footer />
+    </main>
 </QueryClientProvider>
 
 <style>
