@@ -1,6 +1,6 @@
 import { init, addMessages } from 'svelte-i18n'
 
-import { en } from './locales/en'
+import en from './locales/en.json'
 
 addMessages('en', en)
 
