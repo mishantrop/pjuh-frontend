@@ -1,8 +1,14 @@
-# YAPJDUC - FronEnd
+# PJUH - Package Json Updates Helper
 
-BackEnd: [YAPJDUC BackEnd](https://github.com/mishantrop/yet-another-package-json-dependencies-updates-checker-backend)
+FronEnd of service
 
-Based on [Svelte](https://github.com/sveltejs/svelte) and TypeScript
+BackEnd: [PJUH BackEnd](https://github.com/mishantrop/pjuh-backend)
+
+## Tech Stack
+
+- [Svelte](https://github.com/sveltejs/svelte)
+- TypeScript
+- Material UI
 
 ## How to use it
 
@@ -22,3 +28,4 @@ Based on [Svelte](https://github.com/sveltejs/svelte) and TypeScript
 * Sentry
 * Storybook
 * Add optionalDependencies
+* Analytics Events
