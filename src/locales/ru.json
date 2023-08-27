@@ -1,0 +1,8 @@
+{
+    "step1.header": "1. Загрузите package.json",
+    "step1.textfield.label": "Вставьте сюда содержимое package.json",
+    "step1.dropzone": "Перетащите сюда файл package.json",
+    "step1.submit": "Отправить",
+    "step2.header": "2. Выберите версии зависимостей",
+    "step3.header": "3. Выполните команду в терминале (или не выполняйте)"
+}

@@ -1,20 +1,173 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
     <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" href="/favicon.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charset="UTF-8">
+        <link rel="icon" href="/favicon.ico">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>package.json updater</title>
+        <meta name="description" content="Material UI Components for Svelte, ready to use in your app.">
 
-        <link rel="stylesheet" href="/smui.css" media="(prefers-color-scheme: light)" />
-        <link rel="stylesheet" href="/smui-dark.css" media="screen and (prefers-color-scheme: dark)" />
+        <link rel="stylesheet" href="/smui.css" media="(prefers-color-scheme: light)">
+        <link rel="stylesheet" href="/smui-dark.css" media="screen and (prefers-color-scheme: dark)">
 
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono">
+
+        <style>
+            * {
+                padding: 0px;
+                margin: 0px;
+                border: none;
+            }
+
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+
+            body, html {
+                background-color: #eee;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                body, html {
+                    background-color: #222;
+                }
+            }
+
+            .container {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 1rem;
+            }
+
+            .header {
+                align-items: center;
+                display: flex;
+                justify-content: space-between;
+                padding: 1rem 0;
+            }
+
+            .header-header {
+                color: #ff3e00;
+                font-size: 1.8rem;
+                font-weight: 100;
+                line-height: 1.2;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .header-header {
+                    color: #f9ff00;
+                }
+            }
+
+            .header-description {
+                color: #ff3e00;
+                font-size: 1rem;
+                font-weight: 400;
+                line-height: 1.2;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .header-description {
+                    color: #f9ff00;
+                }
+            }
+
+            .footer {
+                padding: 2rem 0 1rem;
+                text-align: center;
+            }
+
+            .section {
+                padding: 1rem 0;
+            }
+
+            .section--even {
+                background-color: #ddd;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .section--even {
+                background-color: #333;
+                }
+            }
+
+            @keyframes spin {
+                from {
+                    transform: rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .global-spinner-wrapper .spinner {
+                animation: spin 1s infinite linear;
+                border-bottom-color: #edf6ff;
+                border-left-color: #edf6ff;
+                border-radius: 50%;
+                border-right-color: #edf6ff;
+                border-style: solid;
+                border-top-color: rgb(62, 68, 95);
+                border-top-style: solid;
+                border-top-width: 10px;
+                border-width: 10px;
+                height: 80px;
+                width: 80px;
+            }
+            .global-spinner-wrapper {
+                align-items: center;
+                display: flex;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.2s linear;
+            }
+            .global-spinner-wrapper--visible {
+                opacity: 1;
+                padding: 2rem;
+            }
+        </style>
     </head>
     <body>
-        <div id="app"></div>
+        <div class="container">
+            <header class="header">
+                <div>
+                    <h1 class="header-header">package.json updater</h1>
+                    <div class="header-description">
+                        Инструмент для обновления зависимостей в JavaScript-проекте.
+                        <!-- A tool for updating dependencies in a JavaScript project. -->
+                    </div>
+                </div>
+
+                <div>
+                    <a
+                        href="https://github.com/mishantrop/pjuh-frontend"
+                        class="mdc-icon-button mdc-icon-button--display-flex"
+                        target="_blank"
+                        title="Open GitHub"
+                    >
+                        <div class="mdc-icon-button__ripple"></div>
+                        <svg class="mdc-icon-button__icon" aria-hidden="true" focusable="false" tabindex="-1" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" class="svelte-nda62k"></path></svg>
+                    </a>
+                </div>
+            </header>
+        </div>
+
+        <div id="app">
+            <div class="section section--even global-spinner-wrapper global-spinner-wrapper--visible" id="global-spinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                2022-2023
+            </div>
+        </footer>
 
         <script type="module" src="/src/main.ts"></script>
 
