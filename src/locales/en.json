@@ -2,6 +2,7 @@
     "step1.header": "1. Upload your package.json",
     "step1.textfield.label": "Paste here package.json content",
     "step1.dropzone": "Drop here package.json file",
+    "step1.or": "or",
     "step1.submit": "Submit",
     "step2.header": "2. Select packages versions",
     "step3.header": "3. Run this command (or dont)"

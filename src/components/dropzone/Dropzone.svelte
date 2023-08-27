@@ -339,19 +339,23 @@
 
 <style>
   .dropzone {
-    flex: 1;
+    align-items: center;
+    background-color: #fafafa;
+    border-color: #eeeeee;
+    border-radius: 2px;
+    border-style: dashed;
+    border-width: 2px;
+    color: #444;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    border-width: 2px;
-    border-radius: 2px;
-    border-color: #eeeeee;
-    border-style: dashed;
-    background-color: #fafafa;
-    color: #bdbdbd;
+    flex: 1;
     outline: none;
+    padding: 20px;
     transition: border 0.24s ease-in-out;
+  }
+  .dropzone:hover {
+    background-color: #fcff93;
   }
   .dropzone:focus {
     border-color: #2196f3;

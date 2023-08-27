@@ -176,7 +176,7 @@
         </Cell>
         <Cell spanDevices={{ desktop: 2, tablet: 12, phone: 12 }}>
           <div style="text-align: center;">
-            OR
+            {$_('step1.or')}
           </div>
         </Cell>
         <Cell spanDevices={{ desktop: 5, tablet: 12, phone: 12 }}>
